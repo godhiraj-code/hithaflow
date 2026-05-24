@@ -1,0 +1,22 @@
+{
+  "short_name": "HithaFlow",
+  "name": "HithaFlow Chronic Companion",
+  "description": "Frictionless, empathetic chronic companion for fibromyalgia symptom logging and trigger insights.",
+  "icons": [
+    {
+      "src": "src/assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "src/assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#0a080d",
+  "theme_color": "#0a080d",
+  "display": "standalone",
+  "orientation": "portrait"
+}

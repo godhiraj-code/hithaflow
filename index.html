@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HithaFlow — Empathetic Chronic Companion</title>
+  <meta name="description" content="A frictionless, empathetic companion app for managing Fibromyalgia symptoms, patterns, and daily pacing.">
+  <meta name="theme-color" content="#0a080d">
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="src/css/style.css">
+
+  <!-- Material Symbols & Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <!-- HTML2PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B27e_q4M.css">
+  <script>
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      alert("ERROR: " + msg + "\nLine: " + lineNo);
+    };
+    window.addEventListener("unhandledrejection", function(event) {
+      alert("PROMISE REJECTION: " + event.reason);
+    });
+  </script>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="app-header">
+    <div style="display: flex; flex-direction: column;">
+      <div class="header-brand">
+        <span class="material-symbols-rounded brand-logo">bubble_chart</span>
+        <h1>HithaFlow</h1>
+      </div>
+      <span style="font-size: 10.5px; color: var(--text-muted); font-style: italic; letter-spacing: 0.3px; margin-top: -2px; margin-left: 2px;">Where intelligence meets purity of soul</span>
+    </div>
+    <div class="header-status" id="header-status">
+      <span class="status-indicator"></span>
+      <span class="status-text">Hitha (Beneficial) &bull; Flow (Rhythm)</span>
+    </div>
+  </header>
+
+  <!-- Main Views Container (SPA) -->
+  <main class="app-main" id="app-main">
+
+    <!-- 1. TODAY VIEW (Default) -->
+    <section id="view-today" class="app-view active">
+      <div class="welcome-header">
+        <div class="mindfulness-highlighter">
+          <span class="highlight-text">Focus on what you control at this moment</span>
+        </div>
+        <h2 id="greeting-text">Hello, Hitha</h2>
+        <p class="subtitle" id="subtitle-text">Remember, missing days is normal. We adapt to you.</p>
+        <!-- Streak Counter -->
+        <div class="streak-container" id="streak-container" style="display:none;">
+          <div class="streak-badge" id="streak-badge">
+            <span class="streak-flame">🔥</span>
+            <span class="streak-number" id="streak-number">0</span>
+            <span class="streak-label" id="streak-label">day streak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Smart Daily Summary -->
+      <div class="smart-summary-card" id="smart-summary-card" style="display:none;">
+        <span class="summary-icon" id="summary-icon"></span>
+        <span class="summary-text" id="summary-text"></span>
+      </div>
+
+
+
+      <!-- One-Tap Emoji Quick Logger -->
+      <div class="emoji-quick-row" id="emoji-quick-row">
+        <button class="emoji-btn" data-pain="1" data-fatigue="1" data-label="Great">
+          <span>😊</span>
+          <span class="emoji-label">Great</span>
+        </button>
+        <button class="emoji-btn" data-pain="3" data-fatigue="3" data-label="Okay">
+          <span>🙂</span>
+          <span class="emoji-label">Okay</span>
+        </button>
+        <button class="emoji-btn" data-pain="5" data-fatigue="5" data-label="Meh">
+          <span>😐</span>
+          <span class="emoji-label">Meh</span>
+        </button>
+        <button class="emoji-btn" data-pain="7" data-fatigue="7" data-label="Rough">
+          <span>😣</span>
+          <span class="emoji-label">Rough</span>
+        </button>
+        <button class="emoji-btn" data-pain="9" data-fatigue="9" data-label="Awful">
+          <span>😭</span>
+          <span class="emoji-label">Awful</span>
+        </button>
+      </div>
+
+      
+      <!-- Spoon Theory Budgeting -->
+      <div class="card spoon-jar-card">
+        <div class="card-header">
+          <h3>Daily Energy Budget</h3>
+          <span class="badge" id="spoons-count-badge">24 / 24</span>
+        </div>
+        <div class="spoon-jar" id="spoon-jar">
+          <!-- Spoons injected by JS -->
+        </div>
+        <div class="spoon-actions">
+          <button class="btn btn-secondary btn-sm" onclick="spendSpoons(1)">Shower (-1)</button>
+          <button class="btn btn-secondary btn-sm" onclick="spendSpoons(2)">Errands (-2)</button>
+          <button class="btn btn-secondary btn-sm" onclick="spendSpoons(4)">Work (-4)</button>
+        </div>
+      </div>
+
+      <!-- Medication Tracker -->
+      <div class="card med-tracker-card">
+        <h3>Daily Medications</h3>
+        <div class="med-toggles">
+          <label class="custom-checkbox-container">
+            <input type="checkbox" id="med-morning">
+            <span class="checkmark"></span>
+            Morning Meds
+          </label>
+          <label class="custom-checkbox-container">
+            <input type="checkbox" id="med-night">
+            <span class="checkmark"></span>
+            Night Meds
+          </label>
+        </div>
+      </div>
+
+      <!-- Flare-Up Survival Kit -->
+      <div class="card survival-kit-card" id="survival-kit" style="display:none;">
+        <div class="survival-header">
+          <span class="material-symbols-rounded text-bad">emergency</span>
+          <h3>Flare-Up Action Plan</h3>
+        </div>
+        <p class="description">Your pain is high. Please prioritize these steps right now:</p>
+        <ul class="survival-list">
+          <li>Take prescribed breakthrough medication.</li>
+          <li>Drink 16oz of water immediately.</li>
+          <li>Find a quiet, dark space and lie down.</li>
+          <li>Use a heating pad or ice pack on pain centers.</li>
+          <li>Cancel non-essential tasks for the rest of the day.</li>
+        </ul>
+      </div>
+
+      <!-- Quick Pain Level Logger -->
+      <div class="card card-hero logging-card">
+        <h3>How is your energy & pain right now?</h3>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Pain Level</span>
+            <span class="badge" id="pain-badge">4 - Moderate</span>
+          </div>
+          <input type="range" id="pain-slider" min="0" max="10" value="4" class="custom-slider">
+          <div class="slider-labels">
+            <span>No Pain</span>
+            <span>Unbearable</span>
+          </div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Fatigue Severity</span>
+            <span class="badge" id="fatigue-badge">3 - Mild</span>
+          </div>
+          <input type="range" id="fatigue-slider" min="0" max="10" value="3" class="custom-slider">
+          <div class="slider-labels">
+            <span>Energetic</span>
+            <span>Exhausted</span>
+          </div>
+        </div>
+
+        <!-- Voice Logger Prompt -->
+        <div class="voice-log-prompt">
+          <button id="voice-log-btn" class="btn btn-voice">
+            <span class="material-symbols-rounded">mic</span>
+            <span>Tap to log with voice (No typing)</span>
+          </button>
+          <p class="voice-status" id="voice-status">Or write notes below...</p>
+        </div>
+
+        <textarea id="log-notes" placeholder="Write triggers, food, stress, or details here (optional)..." rows="2" class="custom-textarea"></textarea>
+      </div>
+
+      <!-- Interactive Body Map Area -->
+      <div class="card body-map-card">
+        <div class="card-header">
+          <h3>Where does it hurt today?</h3>
+          <button id="clear-body-map" class="btn btn-text">Clear Map</button>
+        </div>
+        <div class="body-map-container" id="body-map-mount">
+          <!-- Body Map component will render here -->
+        </div>
+        <p class="tip-text"><span class="material-symbols-rounded">info</span> Tap body parts to toggle pain zones</p>
+      </div>
+
+      <!-- Trigger & Context Tags -->
+      <div class="card tags-card">
+        <h3>Custom Trigger Vocabulary</h3>
+        <p class="description">Tap active triggers or add your own keywords below.</p>
+        <div class="tags-container" id="custom-tags">
+          <!-- Custom user tags will generate here -->
+        </div>
+        <div class="add-tag-box">
+          <input type="text" id="new-tag-input" placeholder="Add custom tag (e.g. Extreme Work)..." class="custom-input">
+          <button id="add-tag-btn" class="btn btn-secondary">Add</button>
+        </div>
+      </div>
+
+      <div class="submit-action-container">
+        <button id="save-daily-log" class="btn btn-primary btn-large">
+          <span class="material-symbols-rounded">check</span>
+          <span>Save Log (Offline Ready)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. INSIGHTS VIEW -->
+    <section id="view-insights" class="app-view">
+      <div class="view-header">
+        <h2>Your Insights & Patterns</h2>
+        <button id="export-pdf-btn" class="btn btn-text btn-sm"><span class="material-symbols-rounded">picture_as_pdf</span> Export Report</button>
+        <p class="subtitle">Evidence-based analysis from your logging history</p>
+      </div>
+
+      <!-- Load Demo Data Alert (For initial user convenience) -->
+      <div class="card demo-banner" id="demo-banner">
+        <div class="demo-info">
+          <h4>No data logged yet?</h4>
+          <p>Load 30 days of synthetic chronic history to immediately explore reports.</p>
+        </div>
+        <button id="load-demo-btn" class="btn btn-accent">Load Demo Data</button>
+      </div>
+
+      <!-- Trend At-a-Glance -->
+      <div class="insights-grid">
+        <div class="card metric-card">
+          <h4>Pain Severity</h4>
+          <div class="metric-value" id="avg-pain-val">--</div>
+          <span class="trend-indicator text-good" id="pain-trend">
+            <span class="material-symbols-rounded">trending_flat</span> Stable
+          </span>
+        </div>
+        <div class="card metric-card">
+          <h4>Fatigue Index</h4>
+          <div class="metric-value" id="avg-fatigue-val">--</div>
+          <span class="trend-indicator text-bad" id="fatigue-trend">
+            <span class="material-symbols-rounded">trending_flat</span> Stable
+          </span>
+        </div>
+      </div>
+
+      <!-- 30-Day Pain & Fatigue Sparkline Bar Chart -->
+      <div class="card chart-card" id="sparkline-chart-card">
+        <h3>30-Day Pain & Fatigue Timeline</h3>
+        <p class="description">Daily severity levels visualized across your tracking history.</p>
+        <div class="sparkline-legend">
+          <span class="sparkline-legend-item"><span class="legend-dot" style="background:var(--accent-rose)"></span> Pain</span>
+          <span class="sparkline-legend-item"><span class="legend-dot" style="background:var(--accent-lavender)"></span> Fatigue</span>
+        </div>
+        <div class="sparkline-bar-container" id="sparkline-bars-mount">
+          <!-- Bars rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Pain Location Heatmap -->
+      <div class="card chart-card" id="pain-location-chart-card">
+        <h3>Pain Location Frequency</h3>
+        <p class="description">Which body regions hurt most often across your logged days.</p>
+        <div class="heatmap-bar-container" id="pain-heatmap-mount">
+          <!-- Horizontal bars rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Predictive Flare Warnings -->
+      <div class="card card-warning" id="predictive-warning-card">
+        <div class="card-warning-header">
+          <span class="material-symbols-rounded icon-warning">warning</span>
+          <h4>Pacing Alert & Flare Prediction</h4>
+        </div>
+        <p id="predictive-warning-text">Log your symptoms consistently to receive personalized predictive flare warnings.</p>
+      </div>
+
+      <!-- Correlation Hints -->
+      <div class="card correlations-card">
+        <h3>Trigger Intelligence Correlations</h3>
+        <div id="correlations-container">
+          <p class="info-empty-state">Load logs or wait for 7 days of entries to activate trigger correlation intelligence.</p>
+        </div>
+      </div>
+
+      <!-- Trigger Distribution Chart -->
+      <div class="card chart-card" id="trigger-chart-card">
+        <h3>Trigger Distribution</h3>
+        <p class="description">Proportion of days each active trigger was logged over the tracking period.</p>
+        <div class="chart-flex-container">
+          <div class="donut-chart-wrapper">
+            <svg viewBox="0 0 100 100" class="donut-chart" id="trigger-donut-svg">
+              <!-- Rendered dynamically -->
+            </svg>
+            <div class="donut-center-label">
+              <span id="donut-total-count">0</span>
+              <span>Trigger Logs</span>
+            </div>
+          </div>
+          <div class="chart-legend" id="trigger-donut-legend">
+            <!-- Legend items loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Good Week vs Bad Week Comparison -->
+      <div class="card comparison-card">
+        <h3>What Changed? (Good Week vs. Bad Week)</h3>
+        <div class="comparison-selectors">
+          <div class="select-wrapper">
+            <label for="good-week-select">Good Week Baseline:</label>
+            <select id="good-week-select" class="custom-select"></select>
+          </div>
+          <div class="select-wrapper">
+            <label for="bad-week-select">Bad Week Flare:</label>
+            <select id="bad-week-select" class="custom-select"></select>
+          </div>
+        </div>
+
+        <div class="comparison-timeline" id="comparison-timeline-mount">
+          <!-- Timeline columns rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TOOLKIT VIEW -->
+    <section id="view-toolkit" class="app-view">
+      <div class="view-header">
+        <h2>Your Relief Toolkit</h2>
+        <p class="subtitle">Empathetic tools designed for calming the nervous system</p>
+      </div>
+
+      <!-- Pacing Calculator -->
+      <div class="card pacing-card">
+        <div class="card-pacing-header">
+          <span class="material-symbols-rounded">bolt</span>
+          <h3>Daily Pacing Calculator</h3>
+        </div>
+        <p class="description">Based on your sleep, fatigue, and pain over the last 3 days:</p>
+        <div class="pacing-badge-container">
+          <div class="pacing-title" id="pacing-recommendation-title">Analyzing baseline...</div>
+          <div class="pacing-schedule" id="pacing-ratio">-- mins Active / -- mins Rest</div>
+        </div>
+        <p class="tip-text" id="pacing-advice">Keep logging to see personalized activity blocks suggestions.</p>
+      </div>
+
+      <!-- Breathing Exercise (Visual Balloon) -->
+      <div class="card breathing-card">
+        <h3>Paced Breathing (Parasympathetic Reset)</h3>
+        <p class="description">Slowing your breaths triggers your body's rest-and-digest response, reducing pain sensitivity.</p>
+        
+        <div class="breathing-session-container">
+          <div class="breathing-circle-outer">
+            <div class="breathing-circle-inner" id="breathing-balloon"></div>
+          </div>
+          <div class="breathing-instruction" id="breathing-instruction">Tap "Start" to align breathing</div>
+        </div>
+
+        <div class="breathing-controls">
+          <button id="btn-toggle-breathing" class="btn btn-primary">Start Breathing</button>
+        </div>
+      </div>
+
+      <!-- Stretch Room -->
+      <div class="card stretch-card">
+        <h3>Gentle Stretch Room</h3>
+        <p class="description">Chair-friendly or bed-friendly, zero-impact movement to reduce myofascial tightness.</p>
+        
+        <div class="stretches-list">
+          <div class="stretch-item">
+            <div class="stretch-meta">
+              <h5>1. Seated Neck Release</h5>
+              <p>Tilt head left, hold right shoulder down. 5 slow breaths per side.</p>
+            </div>
+            <span class="badge badge-success">Chair</span>
+          </div>
+
+          <div class="stretch-item">
+            <div class="stretch-meta">
+              <h5>2. Supported Chest Opener</h5>
+              <p>Sit forward, interlace hands behind lower back. Pull down and back gently.</p>
+            </div>
+            <span class="badge badge-success">Chair</span>
+          </div>
+
+          <div class="stretch-item">
+            <div class="stretch-meta">
+              <h5>3. Gentle Cat/Cow in Bed</h5>
+              <p>On hands and knees, slowly arch back up on exhale, dip spine on inhale.</p>
+            </div>
+            <span class="badge badge-accent">Bed-friendly</span>
+          </div>
+        </div>
+
+        <!-- Heat/Cold Therapy Timer -->
+        <div class="therapy-timer">
+          <h4>Heat/Cold Therapy Timer</h4>
+          <div class="timer-display" id="therapy-timer-display">20:00</div>
+          <div class="timer-controls">
+            <button id="therapy-start" class="btn btn-secondary">Start (20m)</button>
+            <button id="therapy-reset" class="btn btn-text">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distraction Game (Particle Popper) -->
+      <div class="card distraction-card">
+        <h3>Tactile Pain Distraction Game</h3>
+        <p class="description">Engage your brain's processing capacity to block nociceptive signals.</p>
+        
+        <div class="game-container" id="game-container">
+          <div class="game-score">Calming pops: <span id="pop-score">0</span></div>
+          <div class="game-canvas" id="game-canvas">
+            <!-- Tappable color dots will float or populate here -->
+            <button id="start-game-btn" class="btn btn-accent btn-large">Start Calm Pop</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. EMERGENCY & SUPPORT VIEW -->
+    <section id="view-emergency" class="app-view">
+      <div class="view-header">
+        <h2>Emergency & Support Network</h2>
+        <p class="subtitle">Quick access templates and resources for severe flare support</p>
+      </div>
+
+      <!-- Quick Emergency "Not Okay" Trigger -->
+      <div class="card card-danger emergency-trigger-card">
+        <div class="danger-header">
+          <span class="material-symbols-rounded danger-icon animate-pulse">emergency</span>
+          <h3>"I'm Not Okay" Instant Help</h3>
+        </div>
+        <p>Tapping this sends your preset emergency SOS message with your location (mocked offline) to your emergency contact.</p>
+        
+        <button id="emergency-sos-btn" class="btn btn-danger btn-large">
+          <span class="material-symbols-rounded">sensors</span>
+          <span>Send "Not Okay" Alert</span>
+        </button>
+      </div>
+
+      <!-- Pre-written Assist Templates -->
+      <div class="card templates-card">
+        <h3>One-Tap Support Message Templates</h3>
+        <p class="description">No energy to think? Tap to copy/send these pre-written messages to your friends or family.</p>
+        
+        <div class="templates-list">
+          <div class="template-item">
+            <p class="template-text" id="tpl-grocery">"Having a severe flare-up today and struggling to move/cook. Could you help me with a grocery run or dinner pickup? No rush at all."</p>
+            <button class="btn btn-secondary btn-icon-only copy-tpl" data-target="tpl-grocery">
+              <span class="material-symbols-rounded">content_copy</span>
+            </button>
+          </div>
+
+          <div class="template-item">
+            <p class="template-text" id="tpl-pickup">"My brain fog (fibrofog) is extremely high today and I'm unable to drive safely. Could we adjust our plans or can you assist with pick up?"</p>
+            <button class="btn btn-secondary btn-icon-only copy-tpl" data-target="tpl-pickup">
+              <span class="material-symbols-rounded">content_copy</span>
+            </button>
+          </div>
+
+          <div class="template-item">
+            <p class="template-text" id="tpl-quiet">"Experiencing heavy sensory overload and pain right now. Going offline to rest in a dark room. All is okay, but I won't respond to messages."</p>
+            <button class="btn btn-secondary btn-icon-only copy-tpl" data-target="tpl-quiet">
+              <span class="material-symbols-rounded">content_copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Settings -->
+      <div class="card contacts-card">
+        <h3>ICE Support Contacts</h3>
+        <div class="contact-input-row">
+          <input type="text" id="contact-name" placeholder="Contact Name" class="custom-input">
+          <input type="tel" id="contact-phone" placeholder="Phone Number" class="custom-input">
+          <button id="save-contact-btn" class="btn btn-secondary">Save</button>
+        </div>
+        <div class="contacts-list" id="contacts-list-mount">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Local Hospitals & Specialists -->
+      <div class="card resources-card">
+        <h3>Your Local Care Network — Kerala</h3>
+        <ul class="helpline-list">
+          <li>
+            <strong>St. Gregorios Medical Mission Hospital, Parumala</strong>
+            <span>Rheumatology — Dr. Sreenath S (DM)</span>
+            <span>📞 +91 479 231 7000</span>
+            <span>✉️ happyhealing@parumalahospital.com</span>
+          </li>
+          <li>
+            <strong>DISHA Health Helpline (Govt. of Kerala)</strong>
+            <span>24/7 Tele-health, Counselling & Chronic Care</span>
+            <span>📞 1056 (Toll-Free) / 0471-2552056</span>
+          </li>
+          <li>
+            <strong>Kerala State Health Helpline</strong>
+            <span>General medical guidance & scheme info</span>
+            <span>📞 104 (Toll-Free)</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. SETTINGS VIEW -->
+    <section id="view-settings" class="app-view">
+      <div class="view-header">
+        <h2>App Settings & Export</h2>
+        <p class="subtitle">Control your privacy, data accessibility, and custom parameters</p>
+      </div>
+
+      <!-- Data Export & Integration -->
+      <div class="card settings-card">
+        <h3>Medical & Doctor Export</h3>
+        <p class="description">Generate a printable clinical report (including standard FIQR, Pain Logs, and triggers) or export a FHIR-compatible JSON object for health portals.</p>
+        
+        <div class="settings-actions">
+          <button id="export-report-btn" class="btn btn-primary">
+            <span class="material-symbols-rounded">picture_as_pdf</span>
+            <span>View Doctor Report (Print Ready)</span>
+          </button>
+          <button id="export-fhir-btn" class="btn btn-secondary">
+            <span class="material-symbols-rounded">code</span>
+            <span>Export FHIR JSON Data</span>
+          </button>
+        </div>
+
+        <div id="fhir-export-mount" class="fhir-container hidden">
+          <textarea id="fhir-json-output" readonly class="custom-textarea code-area" rows="8"></textarea>
+          <button id="close-fhir-btn" class="btn btn-text">Hide Code</button>
+        </div>
+      </div>
+
+      <!-- Accessibility Customizer -->
+      <div class="card settings-card">
+        <h3>Accessibility & Layout</h3>
+        <div class="toggle-setting">
+          <div>
+            <h4>Force Low-Cognition / Flare Layout</h4>
+            <p>Maximizes font size and hides non-essential cards if your body is struggling.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-low-cognition">
+            <span class="slider-round"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Lock-Screen Notifications Settings -->
+      <div class="card settings-card">
+        <h3>Lock-Screen Quick Logging</h3>
+        <p class="description">Enable PWA lock-screen notifications to log your pain level in 1 tap without opening the app.</p>
+        <div class="settings-actions flex-wrap gap-sm">
+          <button id="btn-enable-notifications" class="btn btn-secondary">
+            <span class="material-symbols-rounded">notifications</span>
+            <span>Enable Reminders</span>
+          </button>
+          <button id="btn-test-notification" class="btn btn-accent">
+            <span class="material-symbols-rounded">notification_important</span>
+            <span>Test Quick-Log Notification</span>
+          </button>
+        </div>
+        <p id="notification-status-text" class="status-indicator text-muted mt-2" style="font-size:12px;"></p>
+      </div>
+
+      <!-- WhatsApp Bot Integration Card -->
+      <div class="card settings-card">
+        <h3>WhatsApp Pacing Bot Integration</h3>
+        <p class="description">Configure an ambient WhatsApp chatbot so you can log symptoms by texting your bot directly.</p>
+        
+        <div class="whatsapp-setup-steps">
+          <div class="toggle-setting mb-3">
+            <div>
+              <h4>Simulated WhatsApp Test Environment</h4>
+              <p>Test the natural language logging parser right inside this console.</p>
+            </div>
+            <button id="btn-toggle-wa-simulator" class="btn btn-secondary btn-sm">Open Simulator</button>
+          </div>
+
+          <!-- Phone Number Configuration -->
+          <div class="webhook-config-block mb-3">
+            <label class="form-label" style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Your WhatsApp Phone Number</label>
+            <div style="display:flex;gap:8px;">
+              <input type="tel" id="wa-phone-number" class="custom-input" placeholder="e.g. +919876543210" style="flex:1;">
+              <button id="btn-save-wa-phone" class="btn btn-secondary" style="min-width: 110px;">Save Number</button>
+            </div>
+            <p class="text-muted mt-2" style="font-size:11px;line-height:1.4;">
+              Enter the exact phone number (with country code) you use to message the bot. This enables HithaFlow to pull your text logs automatically.
+            </p>
+          </div>
+
+          <!-- Webhook URL Display -->
+          <div class="webhook-config-block mb-3">
+            <label class="form-label" style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Your Vercel Webhook Endpoint</label>
+            <div class="input-copy-group" style="display:flex;gap:8px;">
+              <input type="text" id="wa-webhook-url" readonly class="custom-input" style="flex:1;background:rgba(0,0,0,0.3);" value="">
+              <button id="btn-copy-wa-webhook" class="btn btn-secondary btn-icon-only" title="Copy URL">
+                <span class="material-symbols-rounded">content_copy</span>
+              </button>
+            </div>
+            <p class="text-muted mt-2" style="font-size:11px;line-height:1.4;">
+              Copy this webhook and set it in your Twilio / WhatsApp Sandbox Console. The bot will parse messages like: <strong>"4, coffee overdose, extreme work"</strong> or <strong>"7, head, upperBack, flare-up"</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Simulated Chat Panel (hidden by default) -->
+        <div id="wa-simulator-panel" class="wa-simulator-box hidden" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 12px; background: rgba(0,0,0,0.2); margin-top:12px;">
+          <div class="wa-sim-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:10px;">
+            <strong style="color:var(--accent-teal); font-size:13px; display:flex; align-items:center; gap:6px;">
+              <span class="material-symbols-rounded">chat</span> HithaFlow Bot Simulator
+            </strong>
+            <span style="font-size:11px; color:var(--text-muted);">Status: Active</span>
+          </div>
+          <div id="wa-sim-messages" style="max-height: 150px; overflow-y: auto; display:flex; flex-direction:column; gap:8px; margin-bottom:10px; padding: 4px;">
+            <div class="wa-msg wa-bot" style="background:rgba(255,255,255,0.06); padding:6px 10px; border-radius:8px; align-self:flex-start; max-width:85%; font-size:12.5px;">
+              Hello Hitha! How is your body feeling today? Log with: <code style="color:var(--accent-teal)">[pain], [triggers], [notes]</code> (e.g. <code>4, coffee overdose, feeling tired</code>)
+            </div>
+          </div>
+          <div class="wa-sim-input-row" style="display:flex; gap:8px;">
+            <input type="text" id="wa-sim-input" placeholder="Type message (e.g. '5, work stress, extreme fatigue')..." class="custom-input" style="flex:1; font-size:13px;">
+            <button id="wa-sim-send-btn" class="btn btn-secondary" style="padding:0 14px;">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo Data -->
+      <div class="card settings-card">
+        <h3>Training & Demo Data</h3>
+        <p class="description">Populate the app with 30 days of synthetic clinical logs to explore the insights charts and report outputs.</p>
+        <button id="load-demo-settings-btn" class="btn btn-secondary">Load 30 Days Demo Data</button>
+      </div>
+
+      <!-- Reset Option -->
+      <div class="card settings-card card-danger-outline">
+        <h3>Danger Zone</h3>
+        <p class="description">Delete all symptoms history and reset settings. This action is offline-only and immediate.</p>
+        <button id="reset-database-btn" class="btn btn-danger">Reset All Symptoms History</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Crisis Button (Persistent Floating action with 3s hold trigger) -->
+  <div class="crisis-button-container" id="crisis-button-container">
+    <button class="btn-crisis" id="btn-crisis" aria-label="Hold 3 seconds for severe flare log">
+      <svg class="progress-ring" width="70" height="70">
+        <circle class="progress-ring__circle" stroke="#ff758f" stroke-width="4" fill="transparent" r="32" cx="35" cy="35"/>
+      </svg>
+      <div class="crisis-label">
+        <span class="material-symbols-rounded">flare</span>
+        <span class="btn-label-text">SOS</span>
+      </div>
+    </button>
+    <div class="crisis-tooltip" id="crisis-tooltip">Hold 3s for Severe Flare log</div>
+  </div>
+
+  <!-- Persistent Bottom Navigation Bar -->
+  <nav class="app-nav" id="app-nav">
+    <div class="nav-indicator" id="nav-indicator"></div>
+    <button class="nav-item active" data-target="view-today">
+      <span class="material-symbols-rounded">calendar_today</span>
+      <span>Today</span>
+    </button>
+    <button class="nav-item" data-target="view-insights">
+      <span class="material-symbols-rounded">analytics</span>
+      <span>Insights</span>
+    </button>
+    <button class="nav-item" data-target="view-toolkit">
+      <span class="material-symbols-rounded">healing</span>
+      <span>Toolkit</span>
+    </button>
+    <button class="nav-item" data-target="view-emergency">
+      <span class="material-symbols-rounded">emergency_share</span>
+      <span>Support</span>
+    </button>
+    <button class="nav-item" data-target="view-settings">
+      <span class="material-symbols-rounded">settings</span>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- Doctor Report Print Modal Container -->
+  <div id="doctor-report-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Doctor Clinical Summary</h3>
+        <div>
+          <button id="print-modal-btn" class="btn btn-primary">Print / PDF</button>
+          <button id="close-modal-btn" class="btn btn-text">Close</button>
+        </div>
+      </div>
+      <div class="modal-body" id="doctor-report-body-mount">
+        <!-- Rendered doctor report goes here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Javascript loading -->
+  <script src="src/js/storage.js"></script>
+  <script src="src/js/analytics.js"></script>
+  <script src="src/js/components/bodymap.js"></script>
+  <script src="src/js/components/breathing.js"></script>
+  <script src="src/js/components/distraction.js"></script>
+  <script src="src/js/components/doctorReport.js"></script>
+  <script src="src/js/app.js"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker Registered successfully', reg.scope))
+          .catch(err => console.error('Service Worker Registration failed', err));
+      });
+    }
+  </script>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confetti-container"></div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "fibroflow",
+  "version": "1.0.0",
+  "description": "Empathetic companion for people living with fibromyalgia.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build && node copy_src.js",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1",
+    "vercel": "^54.2.0"
+  }
+}
