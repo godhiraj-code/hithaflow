@@ -24,7 +24,7 @@ HithaFlow is a frictionless, empathetic companion web application designed speci
    ```
 2. Navigate into the directory:
    ```bash
-   cd fibroflow
+   cd hithaflow
    ```
 3. Install dependencies:
    ```bash
