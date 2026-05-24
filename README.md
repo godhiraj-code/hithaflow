@@ -35,5 +35,4 @@ HithaFlow is a frictionless, empathetic companion web application designed speci
    npm run dev
    ```
 
-## Live Demo 🌍
-Check out the live application here: [https://hithaflow.vercel.app](https://hithaflow.vercel.app)
+
